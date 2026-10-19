@@ -153,7 +153,7 @@ df_clean["묶음"] = df_clean["cluster_raw"].map(label_map)
 
 st.markdown("---")
 
-# 3. 2차원 산점도
+# 3. 2차원 산점도 그래프
 st.subheader("📊 2차원 산점도")
 col2d_1, col2d_2 = st.columns(2)
 with col2d_1:
@@ -171,92 +171,4 @@ with col2d_2:
 x_col = feature_dict[x_2d_name]
 y_col = feature_dict[y_2d_name]
 
-# 가장 안정적인 HTML/CSS 테이블 기반 데이터 렌더링 시각화
-st.dataframe(
-    df_clean[["movieNm", "묶음", x_col, y_col]],
-    column_config={
-        "movieNm": "영화 제목",
-        "묶음": "묶음 번호",
-        x_col: x_2d_name,
-        y_col: y_2d_name,
-    },
-    use_container_width=True,
-    hide_index=True,
-)
-
-st.markdown("---")
-
-# 4. 3차원 축 고르기 및 안내 문구
-st.subheader("🎲 3차원 속성 설정")
-if len(selected_feature_names) < 3:
-    st.info("💡 고른 속성이 셋보다 적어 3차원 설정 대신 안내 문구를 표시합니다. 속성을 3개 이상 고르면 선택창이 열립니다.")
-else:
-    col3d_1, col3d_2, col3d_3 = st.columns(3)
-    with col3d_1:
-        st.selectbox("X축 속성:", options=selected_feature_names, index=0, key="x3d")
-    with col3d_2:
-        st.selectbox(
-            "Y축 속성:",
-            options=selected_feature_names,
-            index=min(1, len(selected_feature_names) - 1),
-            key="y3d",
-        )
-    with col3d_3:
-        st.selectbox(
-            "Z축 속성:",
-            options=selected_feature_names,
-            index=min(2, len(selected_feature_names) - 1),
-            key="z3d",
-        )
-    st.success("✅ 속성 3개 이상 설정 완료! 아래 요약표 및 상위 영화 목록을 확인하세요.")
-
-st.markdown("---")
-
-# 5. 묶음마다 편수와 네 속성의 평균(원래 단위) 표
-st.subheader("📋 묶음별 요약 통계 (원래 단위 평균)")
-
-summary_df = (
-    df_clean.groupby("묶음")
-    .agg(
-        편수=("movieNm", "count"),
-        스크린수_평균=("first_scrn", "mean"),
-        누적관객_평균=("total_audi", "mean"),
-        top10일수_평균=("days_in_top10", "mean"),
-        롱런지수_평균=("long_run", "mean"),
-    )
-    .reindex(["㉮", "㉯", "㉰"])
-)
-
-summary_formatted = summary_df.copy()
-summary_formatted["편수"] = summary_formatted["편수"].map("{:,}편".format)
-summary_formatted["스크린수_평균"] = summary_formatted["스크린수_평균"].map(
-    "{:,.1f}".format
-)
-summary_formatted["누적관객_평균"] = summary_formatted["누적관객_평균"].map(
-    "{:,.0f}".format
-)
-summary_formatted["top10일수_평균"] = summary_formatted["top10일수_평균"].map(
-    "{:,.1f}".format
-)
-summary_formatted["롱런지수_평균"] = summary_formatted["롱런지수_평균"].map(
-    "{:,.2f}".format
-)
-
-st.dataframe(summary_formatted, use_container_width=True)
-
-st.markdown("---")
-
-# 6. 묶음마다 누적 관객이 많은 순서로 영화 다섯 편의 제목 표시
-st.subheader("🏆 묶음별 누적 관객 Top 5 영화")
-cols = st.columns(3)
-
-for idx, cluster_label in enumerate(["㉮", "㉯", "㉰"]):
-    with cols[idx]:
-        st.markdown(f"#### 묶음 **{cluster_label}**")
-        top5_movies = (
-            df_clean[df_clean["묶음"] == cluster_label]
-            .sort_values(by="total_audi", ascending=False)
-            .head(5)
-        )
-        for rank, (_, row) in enumerate(top5_movies.iterrows(), 1):
-            st.write(f"{rank}. **{row['movieNm']}** ({row['total_audi']:,}명)")
+# 2차
